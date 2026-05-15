@@ -212,3 +212,6 @@ __marimo__/
 # Trash / temp
 .Trash-0/
 .Trash*/
+
+# Generated datamart output (recreated by running main.py)
+datamart/
