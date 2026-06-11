@@ -215,3 +215,10 @@ __marimo__/
 
 # Generated datamart output (recreated by running main.py)
 datamart/
+
+# Model bank artefacts (binary, recreated by running model_train.py)
+model_bank/
+*.pkl
+
+# macOS metadata
+.DS_Store
