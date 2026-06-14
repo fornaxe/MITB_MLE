@@ -1,0 +1,12 @@
+# Include datamart and model_bank for grader — override parent .gitignore exclusions
+!datamart/
+!datamart/**
+!model_bank/
+!model_bank/**
+!*.pkl
+
+# Exclude Spark checksum and hidden metadata files (not needed, paths too long for Windows git)
+**/.*.crc
+*.crc
+**/_SUCCESS
+**/.part-*.crc

@@ -1,0 +1,67 @@
+services:
+  airflow-init:
+    build: .
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__FERNET_KEY=PAqBeGJLJTYFzVkOGHWIYXdLO7XdXz5yTdxAGJe9ezM=
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - airflow_data:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./data:/opt/airflow/scripts/data
+      - ./datamart:/opt/airflow/scripts/datamart
+      - ./model_bank:/opt/airflow/scripts/model_bank
+    entrypoint: >
+      /bin/bash -c "airflow db init &&
+      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true &&
+      echo 'INIT_DONE'"
+    healthcheck:
+      # Container is "healthy" once the DB init sentinel appears in its logs.
+      # We check for the airflow.db file which is created by `airflow db init`.
+      test: ["CMD-SHELL", "airflow db check"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+  airflow-webserver:
+    build: .
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully   # wait until init exits 0
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__FERNET_KEY=PAqBeGJLJTYFzVkOGHWIYXdLO7XdXz5yTdxAGJe9ezM=
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - airflow_data:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./data:/opt/airflow/scripts/data
+      - ./datamart:/opt/airflow/scripts/datamart
+      - ./model_bank:/opt/airflow/scripts/model_bank
+    ports:
+      - "8080:8080"
+    command: webserver
+
+  airflow-scheduler:
+    build: .
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully   # wait until init exits 0
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__FERNET_KEY=PAqBeGJLJTYFzVkOGHWIYXdLO7XdXz5yTdxAGJe9ezM=
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - airflow_data:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./data:/opt/airflow/scripts/data
+      - ./datamart:/opt/airflow/scripts/datamart
+      - ./model_bank:/opt/airflow/scripts/model_bank
+    command: scheduler
+
+volumes:
+  airflow_data:
